@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>产品实时报价</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --primary: #1677ff;
+      --text: #1f1f1f;
+      --text2: #666;
+      --border: #e8e8e8;
+      --danger: #ff4d4f;
+      --success: #52c41a;
+      --radius: 12px;
+      --shadow: 0 2px 12px rgba(0,0,0,.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hidden { display: none !important; }
+    .page { max-width: 720px; margin: 0 auto; padding: 16px; min-height: 100vh; }
+    #gate {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px; text-align: center;
+    }
+    #gate .logo { font-size: 48px; margin-bottom: 12px; }
+    #gate h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+    #gate p { color: var(--text2); font-size: 14px; margin-bottom: 28px; }
+    .input-wrap { width: 100%; max-width: 320px; margin-bottom: 16px; }
+    input[type="text"], input[type="password"], input[type="number"], input[type="search"], input[type="url"], select, textarea {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+      font-size: 16px; outline: none; background: #fff;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    textarea { resize: vertical; font-family: inherit; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 24px; border: none; border-radius: 10px; font-size: 16px; font-weight: 500;
+      cursor: pointer; background: var(--primary); color: #fff; width: 100%; max-width: 320px;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn.ghost { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+    .btn.small { padding: 6px 12px; font-size: 13px; width: auto; max-width: none; }
+    .btn.danger { background: var(--danger); }
+    .btn.success { background: var(--success); }
+    .err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+    .header h2 { font-size: 18px; font-weight: 600; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .meta { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+    .notice { background: #e6f4ff; color: #0958d9; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+    .search-bar { margin-bottom: 16px; }
+    .group { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden; }
+    .group-h { padding: 12px 14px; background: #fafafa; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .group-h span { font-weight: 400; font-size: 12px; color: var(--text2); }
+    .item { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .item:last-child { border-bottom: none; }
+    .item-img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; background: #f0f0f0; flex-shrink: 0; }
+    .item-img.placeholder { display: flex; align-items: center; justify-content: center; font-size: 22px; color: #bbb; }
+    .item-info { flex: 1; min-width: 0; }
+    .item-config { font-size: 14px; color: var(--text); font-weight: 500; }
+    .item-specs { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+    .item-prices { text-align: right; white-space: nowrap; flex-shrink: 0; }
+    .price-retail { font-size: 16px; font-weight: 600; color: #cf1322; }
+    .price-ws { font-size: 13px; color: var(--text2); }
+    .empty { text-align: center; padding: 48px 16px; color: var(--text2); font-size: 14px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .admin-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .admin-tabs .btn { width: auto; max-width: none; padding: 8px 14px; font-size: 13px; }
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-bottom: 16px; }
+    .card h3 { font-size: 15px; margin-bottom: 12px; font-weight: 600; }
+    .form-row { margin-bottom: 12px; }
+    .form-row label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+    .form-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .form-actions .btn { flex: 1; }
+    .product-admin-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+    .product-admin-item:last-child { border-bottom: none; }
+    .product-admin-info { flex: 1; min-width: 0; font-size: 13px; }
+    .product-admin-info b { font-size: 14px; }
+    .product-admin-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .switch { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.8); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 14px; z-index: 9999; display: none; max-width: 90%; text-align: center; }
+    .footer-link { text-align: center; margin-top: 24px; font-size: 12px; color: var(--text2); }
+    .footer-link a { color: var(--primary); text-decoration: none; }
+    .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
+    .modal { background: #fff; width: 100%; max-width: 720px; border-radius: 16px 16px 0 0; padding: 20px 16px 32px; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { font-size: 17px; margin-bottom: 16px; text-align: center; }
+    @media (min-width: 640px) { .modal-mask { align-items: center; } .modal { border-radius: 16px; margin: 16px; } }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px; }
+    table.quick-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 780px; }
+    table.quick-table th { background: #fafafa; padding: 8px 6px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    table.quick-table td { padding: 6px 4px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    table.quick-table input[type="text"], table.quick-table input[type="number"], table.quick-table input[type="url"] { padding: 6px 8px; font-size: 12px; border-radius: 6px; width: 100%; }
+    table.quick-table input.model { min-width: 80px; }
+    table.quick-table input.config { min-width: 60px; }
+    table.quick-table input.price { min-width: 60px; max-width: 80px; }
+    table.quick-table input.spec { min-width: 70px; }
+    table.quick-table input.imgurl { min-width: 100px; }
+    table.quick-table .del-btn { padding: 4px 8px; font-size: 12px; background: transparent; color: var(--danger); border: 1px solid var(--danger); border-radius: 6px; cursor: pointer; }
+    .hint { font-size: 12px; color: var(--text2); margin-bottom: 10px; line-height: 1.6; }
+    .hint code { background: #f0f0f0; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .btn-row .btn { width: auto; max-width: none; padding: 8px 14px; font-size: 13px; }
+    .img-preview { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; background: #f0f0f0; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div id="toast" class="toast"></div>
+
+  <div id="gate">
+    <div class="logo">📱</div>
+    <h1>产品实时报价</h1>
+    <p>输入查询码查看最新报价</p>
+    <div class="input-wrap">
+      <input type="text" id="codeInput" placeholder="请输入查询码" autocomplete="off" />
+    </div>
+    <button class="btn" id="codeBtn">查看报价</button>
+    <div class="err" id="gateErr">查询码不正确，请核对后重试</div>
+    <div class="footer-link" style="margin-top:40px"><a href="#admin" id="goAdmin">管理入口</a></div>
+  </div>
+
+  <div id="customer" class="page hidden">
+    <div class="header">
+      <h2>📱 产品报价单</h2>
+      <div class="header-actions"><button class="btn ghost small" id="refreshBtn">刷新</button></div>
+    </div>
+    <div class="meta" id="updateMeta">价格更新时间以页面顶部为准</div>
+    <div class="notice" id="noticeBar"></div>
+    <div class="search-bar"><input type="search" id="searchInput" placeholder="搜索型号或配置…" /></div>
+    <div id="productList"></div>
+    <div class="footer-link"><a href="#admin">管理入口</a></div>
+  </div>
+
+  <div id="adminLogin" class="page hidden">
+    <div style="max-width:360px;margin:60px auto 0;text-align:center">
+      <div style="font-size:40px;margin-bottom:12px">🔐</div>
+      <h2 style="margin-bottom:8px">管理后台</h2>
+      <p style="color:var(--text2);font-size:14px;margin-bottom:24px">请输入管理密码</p>
+      <div class="input-wrap" style="max-width:100%"><input type="password" id="pwInput" placeholder="管理密码" /></div>
+      <button class="btn" id="pwBtn" style="max-width:100%">登录</button>
+      <div class="err" id="pwErr">密码错误，请重试</div>
+      <div class="footer-link" style="margin-top:32px"><a href="#" id="backToGate">← 返回报价页</a></div>
+    </div>
+  </div>
+
+  <div id="admin" class="page hidden">
+    <div class="admin-header">
+      <h2>🛠 报价管理</h2>
+      <button class="btn ghost small" id="logoutBtn">退出</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="btn" id="tabProducts">产品列表</button>
+      <button class="btn ghost" id="tabBulk">批量导入</button>
+      <button class="btn ghost" id="tabTable">表格快改</button>
+      <button class="btn ghost" id="tabSettings">设置</button>
+      <button class="btn ghost" id="tabPassword">修改密码</button>
+    </div>
+
+    <div id="panelProducts">
+      <div class="btn-row"><button class="btn" id="addProductBtn">＋ 新增产品</button></div>
+      <div class="card">
+        <input type="search" id="adminSearch" placeholder="搜索产品…" style="margin-bottom:12px" />
+        <div id="adminProductList"></div>
+      </div>
+    </div>
+
+    <div id="panelBulk" class="hidden">
+      <div class="card">
+        <h3>批量导入 / 覆盖产品</h3>
+        <div class="hint">
+          每行一个产品，推荐格式：<br>
+          <code>型号 | 配置 | 批发价 | 零售价 | 电池 | 处理器 | 图片链接</code><br>
+          前4项必填，后面可空。支持 | 、, 、，、Tab 分隔。<br>
+          示例：<code>iPhone 16 | 128G | 4890 | 5199 | 3561mAh | A18 | https://xxx.jpg</code>
+        </div>
+        <div class="form-row"><textarea id="bulkText" rows="12" placeholder="在此粘贴产品数据…"></textarea></div>
+        <div class="form-row">
+          <label class="switch"><input type="checkbox" id="bulkReplace" /> 导入前先清空现有产品（不勾选则追加）</label>
+        </div>
+        <button class="btn" id="bulkImportBtn">开始导入</button>
+      </div>
+    </div>
+
+    <div id="panelTable" class="hidden">
+      <div class="card">
+        <h3>表格快速编辑</h3>
+        <div class="hint">直接在表格里改，改完点「保存全部」。图片填链接地址即可。</div>
+        <div class="btn-row">
+          <button class="btn success" id="tableSaveBtn">保存全部</button>
+          <button class="btn ghost" id="tableAddRowBtn">＋ 加一行</button>
+        </div>
+        <div class="table-wrap">
+          <table class="quick-table">
+            <thead>
+              <tr>
+                <th>型号</th><th>配置</th><th>批发</th><th>零售</th><th>电池</th><th>处理器</th><th>图片链接</th><th>可见</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="panelSettings" class="hidden">
+      <div class="card">
+        <h3>客户查询码</h3>
+        <div class="form-row"><input type="text" id="setQueryCode" placeholder="客户输入此码才能查看报价" /></div>
+        <div class="form-row">
+          <label>客户看到的价格</label>
+          <select id="setDisplayMode">
+            <option value="retail">只显示零售价</option>
+            <option value="wholesale">只显示批发价</option>
+            <option value="both">两个都显示</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>页面公告（客户进入后显示，留空则不显示）</label>
+          <textarea id="setNotice" rows="3" placeholder="例如：今日现货充足，欢迎咨询"></textarea>
+        </div>
+        <button class="btn" id="saveSettingsBtn">保存设置</button>
+      </div>
+    </div>
+
+    <div id="panelPassword" class="hidden">
+      <div class="card">
+        <h3>🔑 修改管理密码</h3>
+        <div class="form-row"><label>当前密码</label><input type="password" id="pwOld" /></div>
+        <div class="form-row"><label>新密码（至少6位）</label><input type="password" id="pwNew" /></div>
+        <div class="form-row"><label>确认新密码</label><input type="password" id="pwNew2" /></div>
+        <button class="btn" id="changePwBtn">修改密码</button>
+      </div>
+    </div>
+
+    <div class="footer-link"><a href="#" id="backToCustomer">← 返回客户查询页</a></div>
+  </div>
+
+  <div id="editOverlay" class="modal-mask hidden">
+    <div class="modal">
+      <h3 id="editTitle">编辑产品</h3>
+      <div class="form-row"><label>型号</label><input type="text" id="eModel" placeholder="例如 iPhone 16" /></div>
+      <div class="form-row"><label>配置（如 12+256）</label><input type="text" id="eConfig" placeholder="例如 8+256" /></div>
+      <div class="form-row"><label>批发价（元）</label><input type="number" id="eWs" placeholder="0" min="0" step="1" /></div>
+      <div class="form-row"><label>零售价（元）</label><input type="number" id="eRt" placeholder="0" min="0" step="1" /></div>
+      <div class="form-row"><label>电池</label><input type="text" id="eBattery" placeholder="例如 4000mAh" /></div>
+      <div class="form-row"><label>处理器</label><input type="text" id="eCpu" placeholder="例如 骁龙8 Gen3 / A18" /></div>
+      <div class="form-row">
+        <label>产品图片链接（可选）</label>
+        <input type="url" id="eImage" placeholder="https://..." />
+        <img id="eImagePreview" class="img-preview hidden" alt="预览" />
+      </div>
+      <div class="form-row">
+        <label class="switch"><input type="checkbox" id="eVisible" checked /> 客户可见</label>
+      </div>
+      <div class="form-actions">
+        <button class="btn ghost" id="editCancel">取消</button>
+        <button class="btn" id="editSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULTS = {
+      queryCode: "8888",
+      adminPw: "admin123",
+      displayMode: "both",
+      notice: "欢迎咨询，价格实时更新，量大从优",
+      products: [
+        { id: 1, model: "iPhone 16", config: "128G", ws: 4890, rt: 5199, battery: "3561mAh", cpu: "A18", image: "", visible: true },
+        { id: 2, model: "iPhone 16", config: "256G", ws: 5490, rt: 5899, battery: "3561mAh", cpu: "A18", image: "", visible: true },
+        { id: 3, model: "iPhone 16 Pro", config: "128G", ws: 6990, rt: 7499, battery: "3582mAh", cpu: "A18 Pro", image: "", visible: true },
+        { id: 4, model: "iPhone 16 Pro", config: "256G", ws: 7690, rt: 8199, battery: "3582mAh", cpu: "A18 Pro", image: "", visible: true },
+        { id: 5, model: "iPhone 16 Pro Max", config: "256G", ws: 8990, rt: 9599, battery: "4685mAh", cpu: "A18 Pro", image: "", visible: true },
+        { id: 6, model: "小米 15", config: "12+256", ws: 3299, rt: 3599, battery: "5400mAh", cpu: "骁龙8 Elite", image: "", visible: true },
+        { id: 7, model: "小米 15", config: "16+512", ws: 3799, rt: 4099, battery: "5400mAh", cpu: "骁龙8 Elite", image: "", visible: true },
+        { id: 8, model: "小米 15 Pro", config: "16+512", ws: 4499, rt: 4899, battery: "6100mAh", cpu: "骁龙8 Elite", image: "", visible: true },
+        { id: 9, model: "华为 Mate 70", config: "12+256", ws: 5499, rt: 5999, battery: "5000mAh", cpu: "麒麟9020", image: "", visible: true },
+        { id: 10, model: "华为 Mate 70 Pro", config: "12+512", ws: 6499, rt: 6999, battery: "5250mAh", cpu: "麒麟9020", image: "", visible: true },
+        { id: 11, model: "OPPO Find X8", config: "12+256", ws: 3999, rt: 4299, battery: "5630mAh", cpu: "天玑9400", image: "", visible: true },
+        { id: 12, model: "vivo X200", config: "12+256", ws: 3899, rt: 4199, battery: "5800mAh", cpu: "天玑9400", image: "", visible: true },
+        { id: 13, model: "荣耀 Magic7", config: "12+256", ws: 3699, rt: 3999, battery: "5650mAh", cpu: "骁龙8 Elite", image: "", visible: true },
+        { id: 14, model: "三星 S25", config: "12+256", ws: 5299, rt: 5699, battery: "4000mAh", cpu: "骁龙8 Elite", image: "", visible: true },
+        { id: 15, model: "一加 13", config: "16+512", ws: 3799, rt: 4099, battery: "6000mAh", cpu: "骁龙8 Elite", image: "", visible: true }
+      ]
+    };
+
+    let state = {
+      queryCode: DEFAULTS.queryCode, adminPw: DEFAULTS.adminPw, displayMode: DEFAULTS.displayMode,
+      notice: DEFAULTS.notice, products: [], updatedAt: null, editingId: null, isAdmin: false
+    };
+
+    const $ = id => document.getElementById(id);
+    function toast(msg, ms = 2200) {
+      const t = $("toast"); t.textContent = msg; t.style.display = "block";
+      clearTimeout(t._tm); t._tm = setTimeout(() => t.style.display = "none", ms);
+    }
+    function fmt(n) {
+      if (n === null || n === undefined || n === "") return "—";
+      return "¥" + Number(n).toLocaleString("zh-CN");
+    }
+    function show(sec) {
+      ["gate", "customer", "adminLogin", "admin"].forEach(s => $(s).classList.toggle("hidden", s !== sec));
+    }
+    function esc(s) {
+      if (s == null) return "";
+      const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
+    }
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem("product_quote_data");
+        if (raw) {
+          const data = JSON.parse(raw);
+          state.queryCode = data.queryCode || DEFAULTS.queryCode;
+          state.adminPw = data.adminPw || DEFAULTS.adminPw;
+          state.displayMode = data.displayMode || DEFAULTS.displayMode;
+          state.notice = data.notice || "";
+          state.products = (data.products || DEFAULTS.products).map(p => ({ battery: "", cpu: "", image: "", ...p }));
+          state.updatedAt = data.updatedAt || null;
+        } else {
+          state.products = JSON.parse(JSON.stringify(DEFAULTS.products));
+          state.updatedAt = new Date().toISOString();
+          saveData();
+        }
+      } catch (e) {
+        state.products = JSON.parse(JSON.stringify(DEFAULTS.products));
+        state.updatedAt = new Date().toISOString();
+      }
+    }
+    function saveData() {
+      state.updatedAt = new Date().toISOString();
+      localStorage.setItem("product_quote_data", JSON.stringify({
+        queryCode: state.queryCode, adminPw: state.adminPw, displayMode: state.displayMode,
+        notice: state.notice, products: state.products, updatedAt: state.updatedAt
+      }));
+    }
+
+    function renderList() {
+      const kw = ($("searchInput").value || "").trim().toLowerCase();
+      const groups = {};
+      state.products.filter(p => p.visible !== false).forEach(p => {
+        if (kw && (p.model + " " + p.config + " " + (p.cpu||"") + " " + (p.battery||"")).toLowerCase().indexOf(kw) === -1) return;
+        (groups[p.model] = groups[p.model] || []).push(p);
+      });
+      const keys = Object.keys(groups);
+      if (keys.length === 0) { $("productList").innerHTML = '<div class="empty">暂无匹配的产品</div>'; return; }
+      let html = "";
+      const mode = state.displayMode;
+      keys.forEach(m => {
+        html += `<div class="group"><div class="group-h"><b>${esc(m)}</b><span>${groups[m].length} 个配置</span></div>`;
+        groups[m].forEach(p => {
+          let prices = "";
+          if (mode === "retail" || mode === "both") prices += `<div class="price-retail">${fmt(p.rt)}</div>`;
+          if (mode === "wholesale" || mode === "both") prices += `<div class="price-ws">批发 ${fmt(p.ws)}</div>`;
+          let imgHtml = p.image
+            ? `<img class="item-img" src="${esc(p.image)}" alt="" onerror="this.outerHTML='<div class=\\'item-img placeholder\\'>📱</div>'" />`
+            : `<div class="item-img placeholder">📱</div>`;
+          let specs = [];
+          if (p.battery) specs.push(p.battery);
+          if (p.cpu) specs.push(p.cpu);
+          const specsHtml = specs.length ? `<div class="item-specs">${esc(specs.join(" · "))}</div>` : "";
+          html += `<div class="item">${imgHtml}<div class="item-info"><div class="item-config">${esc(p.config)}</div>${specsHtml}</div><div class="item-prices">${prices}</div></div>`;
+        });
+        html += "</div>";
+      });
+      $("productList").innerHTML = html;
+    }
+    function applyMeta() {
+      if (state.notice) { $("noticeBar").textContent = "📢 " + state.notice; $("noticeBar").style.display = "block"; }
+      else $("noticeBar").style.display = "none";
+      if (state.updatedAt) $("updateMeta").textContent = "价格更新时间：" + new Date(state.updatedAt).toLocaleString("zh-CN");
+    }
+
+    function renderAdminList() {
+      const kw = ($("adminSearch").value || "").trim().toLowerCase();
+      const list = state.products.filter(p => !kw || (p.model + " " + p.config + " " + (p.cpu||"") + " " + (p.battery||"")).toLowerCase().indexOf(kw) !== -1);
+      if (list.length === 0) { $("adminProductList").innerHTML = '<div class="empty">暂无产品</div>'; return; }
+      let html = "";
+      list.forEach(p => {
+        const specs = [p.battery, p.cpu].filter(Boolean).join(" · ");
+        html += `<div class="product-admin-item">
+          <div class="product-admin-info">
+            <b>${esc(p.model)}</b> ${esc(p.config)}
+            <div style="color:var(--text2);margin-top:2px">批发 ${fmt(p.ws)} / 零售 ${fmt(p.rt)}${specs ? " · " + esc(specs) : ""}${p.visible === false ? ' <span style="color:var(--danger)">[隐藏]</span>' : ''}</div>
+          </div>
+          <div class="product-admin-actions">
+            <button class="btn ghost small" onclick="openEdit(${p.id})">编辑</button>
+            <button class="btn danger small" onclick="deleteProduct(${p.id})">删除</button>
+          </div>
+        </div>`;
+      });
+      $("adminProductList").innerHTML = html;
+    }
+
+    function renderTable() {
+      const tbody = $("tableBody"); tbody.innerHTML = "";
+      state.products.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.dataset.id = p.id;
+        tr.innerHTML = `
+          <td><input type="text" class="model" value="${esc(p.model)}" /></td>
+          <td><input type="text" class="config" value="${esc(p.config)}" /></td>
+          <td><input type="number" class="price ws" value="${p.ws}" min="0" step="1" /></td>
+          <td><input type="number" class="price rt" value="${p.rt}" min="0" step="1" /></td>
+          <td><input type="text" class="spec battery" value="${esc(p.battery || "")}" /></td>
+          <td><input type="text" class="spec cpu" value="${esc(p.cpu || "")}" /></td>
+          <td><input type="url" class="imgurl" value="${esc(p.image || "")}" placeholder="图片链接" /></td>
+          <td style="text-align:center"><input type="checkbox" class="vis" ${p.visible !== false ? "checked" : ""} /></td>
+          <td><button class="del-btn" onclick="tableDeleteRow(this)">删</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    window.tableDeleteRow = function(btn) { btn.closest("tr").remove(); };
+
+    $("tableAddRowBtn").onclick = () => {
+      const tr = document.createElement("tr");
+      tr.dataset.id = "new";
+      tr.innerHTML = `
+        <td><input type="text" class="model" placeholder="型号" /></td>
+        <td><input type="text" class="config" placeholder="配置" /></td>
+        <td><input type="number" class="price ws" placeholder="批发" min="0" step="1" /></td>
+        <td><input type="number" class="price rt" placeholder="零售" min="0" step="1" /></td>
+        <td><input type="text" class="spec battery" placeholder="电池" /></td>
+        <td><input type="text" class="spec cpu" placeholder="处理器" /></td>
+        <td><input type="url" class="imgurl" placeholder="图片链接" /></td>
+        <td style="text-align:center"><input type="checkbox" class="vis" checked /></td>
+        <td><button class="del-btn" onclick="tableDeleteRow(this)">删</button></td>`;
+      $("tableBody").appendChild(tr);
+    };
+
+    $("tableSaveBtn").onclick = () => {
+      const rows = $("tableBody").querySelectorAll("tr");
+      const newProducts = [];
+      let maxId = state.products.reduce((m, p) => Math.max(m, p.id || 0), 0);
+      let hasError = false;
+      rows.forEach(tr => {
+        const model = tr.querySelector(".model").value.trim();
+        const config = tr.querySelector(".config").value.trim();
+        const ws = Number(tr.querySelector(".ws").value);
+        const rt = Number(tr.querySelector(".rt").value);
+        const battery = tr.querySelector(".battery").value.trim();
+        const cpu = tr.querySelector(".cpu").value.trim();
+        const image = tr.querySelector(".imgurl").value.trim();
+        const visible = tr.querySelector(".vis").checked;
+        if (!model && !config) return;
+        if (!model || !config || isNaN(ws) || isNaN(rt)) { hasError = true; return; }
+        let id = tr.dataset.id;
+        if (id === "new" || !id) { maxId += 1; id = maxId; } else id = Number(id);
+        newProducts.push({ id, model, config, ws, rt, battery, cpu, image, visible });
+      });
+      if (hasError) return toast("有行数据不完整或价格有误，请检查");
+      state.products = newProducts; saveData();
+      toast("已保存 " + newProducts.length + " 条产品"); renderAdminList();
+    };
+
+    $("bulkImportBtn").onclick = () => {
+      const text = $("bulkText").value.trim();
+      if (!text) return toast("请先粘贴内容");
+      const lines = text.split(/\\r?\\n/).map(l => l.trim()).filter(Boolean);
+      const parsed = []; let failCount = 0;
+      lines.forEach(line => {
+        const parts = line.split(/[|｜,，\\t]+/).map(s => s.trim()).filter(Boolean);
+        if (parts.length < 4) { failCount++; return; }
+        const model = parts[0], config = parts[1], ws = Number(parts[2]), rt = Number(parts[3]);
+        const battery = parts[4] || "", cpu = parts[5] || "", image = parts[6] || "";
+        if (!model || !config || isNaN(ws) || isNaN(rt)) { failCount++; return; }
+        parsed.push({ model, config, ws, rt, battery, cpu, image, visible: true });
+      });
+      if (parsed.length === 0) return toast("没有解析到有效数据，请检查格式");
+      if ($("bulkReplace").checked) state.products = [];
+      let maxId = state.products.reduce((m, p) => Math.max(m, p.id || 0), 0);
+      parsed.forEach(p => { maxId += 1; state.products.push({ id: maxId, ...p }); });
+      saveData(); $("bulkText").value = "";
+      toast(`成功导入 ${parsed.length} 条` + (failCount ? `，跳过 ${failCount} 行无效数据` : ""));
+      renderAdminList(); renderTable();
+    };
+
+    $("codeBtn").onclick = function () {
+      const v = $("codeInput").value.trim();
+      if (!v) return;
+      if (v !== state.queryCode) { $("gateErr").style.display = "block"; return; }
+      $("gateErr").style.display = "none";
+      try { localStorage.setItem("quote_last_code", v); } catch(e) {}
+      show("customer"); applyMeta(); renderList();
+    };
+    $("codeInput").addEventListener("keydown", e => { if (e.key === "Enter") $("codeBtn").click(); });
+    $("searchInput").addEventListener("input", renderList);
+    $("refreshBtn").onclick = () => { loadData(); applyMeta(); renderList(); toast("已刷新"); };
+
+    document.querySelectorAll('a[href="#admin"]').forEach(a => {
+      a.onclick = e => {
+        e.preventDefault();
+        if (state.isAdmin) { show("admin"); renderAdminList(); fillSettings(); }
+        else show("adminLogin");
+      };
+    });
+    $("goAdmin").onclick = e => { e.preventDefault(); show("adminLogin"); };
+
+    $("pwBtn").onclick = function () {
+      if ($("pwInput").value !== state.adminPw) { $("pwErr").style.display = "block"; return; }
+      $("pwErr").style.display = "none"; state.isAdmin = true; $("pwInput").value = "";
+      show("admin"); renderAdminList(); fillSettings();
+    };
+    $("pwInput").addEventListener("keydown", e => { if (e.key === "Enter") $("pwBtn").click(); });
+    $("logoutBtn").onclick = () => { state.isAdmin = false; show("adminLogin"); };
+    $("backToGate").onclick = e => { e.preventDefault(); show("gate"); };
+    $("backToCustomer").onclick = e => { e.preventDefault(); show("customer"); applyMeta(); renderList(); };
+
+    function switchTab(tab) {
+      ["Products", "Bulk", "Table", "Settings", "Password"].forEach(t => {
+        $("tab" + t).classList.toggle("ghost", t !== tab);
+        $("panel" + t).classList.toggle("hidden", t !== tab);
+      });
+      if (tab === "Table") renderTable();
+      if (tab === "Products") renderAdminList();
+    }
+    $("tabProducts").onclick = () => switchTab("Products");
+    $("tabBulk").onclick = () => switchTab("Bulk");
+    $("tabTable").onclick = () => switchTab("Table");
+    $("tabSettings").onclick = () => switchTab("Settings");
+    $("tabPassword").onclick = () => switchTab("Password");
+
+    function fillSettings() {
+      $("setQueryCode").value = state.queryCode;
+      $("setDisplayMode").value = state.displayMode;
+      $("setNotice").value = state.notice || "";
+    }
+    $("saveSettingsBtn").onclick = () => {
+      const code = $("setQueryCode").value.trim();
+      if (!code) return toast("查询码不能为空");
+      state.queryCode = code; state.displayMode = $("setDisplayMode").value; state.notice = $("setNotice").value.trim();
+      saveData(); toast("设置已保存");
+    };
+    $("changePwBtn").onclick = () => {
+      const o = $("pwOld").value, n = $("pwNew").value, n2 = $("pwNew2").value;
+      if (!o || !n) return toast("请填写完整");
+      if (o !== state.adminPw) return toast("当前密码错误");
+      if (n.length < 6) return toast("新密码至少 6 位");
+      if (n !== n2) return toast("两次输入的新密码不一致");
+      state.adminPw = n; saveData();
+      $("pwOld").value = $("pwNew").value = $("pwNew2").value = "";
+      toast("密码已修改");
+    };
+
+    $("addProductBtn").onclick = () => openEdit(null);
+    $("adminSearch").addEventListener("input", renderAdminList);
+
+    $("eImage").addEventListener("input", function () {
+      const url = this.value.trim();
+      const preview = $("eImagePreview");
+      if (url) { preview.src = url; preview.classList.remove("hidden"); preview.onerror = () => preview.classList.add("hidden"); }
+      else preview.classList.add("hidden");
+    });
+
+    window.openEdit = function (id) {
+      state.editingId = id;
+      if (id) {
+        const p = state.products.find(x => x.id === id);
+        if (!p) return;
+        $("editTitle").textContent = "编辑产品";
+        $("eModel").value = p.model; $("eConfig").value = p.config;
+        $("eWs").value = p.ws; $("eRt").value = p.rt;
+        $("eBattery").value = p.battery || ""; $("eCpu").value = p.cpu || "";
+        $("eImage").value = p.image || ""; $("eVisible").checked = p.visible !== false;
+      } else {
+        $("editTitle").textContent = "新增产品";
+        $("eModel").value = ""; $("eConfig").value = ""; $("eWs").value = ""; $("eRt").value = "";
+        $("eBattery").value = ""; $("eCpu").value = ""; $("eImage").value = ""; $("eVisible").checked = true;
+      }
+      $("eImage").dispatchEvent(new Event("input"));
+      $("editOverlay").classList.remove("hidden");
+    };
+    $("editCancel").onclick = () => $("editOverlay").classList.add("hidden");
+    $("editSave").onclick = () => {
+      const model = $("eModel").value.trim(), config = $("eConfig").value.trim();
+      const ws = Number($("eWs").value), rt = Number($("eRt").value);
+      const battery = $("eBattery").value.trim(), cpu = $("eCpu").value.trim(), image = $("eImage").value.trim();
+      if (!model) return toast("请填写型号");
+      if (!config) return toast("请填写配置");
+      if (isNaN(ws) || isNaN(rt)) return toast("请填写正确的价格");
+      if (state.editingId) {
+        const p = state.products.find(x => x.id === state.editingId);
+        if (p) { p.model = model; p.config = config; p.ws = ws; p.rt = rt; p.battery = battery; p.cpu = cpu; p.image = image; p.visible = $("eVisible").checked; }
+      } else {
+        const maxId = state.products.reduce((m, p) => Math.max(m, p.id || 0), 0);
+        state.products.push({ id: maxId + 1, model, config, ws, rt, battery, cpu, image, visible: $("eVisible").checked });
+      }
+      saveData(); $("editOverlay").classList.add("hidden"); renderAdminList(); toast("已保存");
+    };
+    window.deleteProduct = function (id) {
+      if (!confirm("确定删除这个产品吗？")) return;
+      state.products = state.products.filter(p => p.id !== id); saveData(); renderAdminList(); toast("已删除");
+    };
+
+    loadData();
+    try { const last = localStorage.getItem("quote_last_code"); if (last) $("codeInput").value = last; } catch(e) {}
+  </script>
+</body>
+</html>
