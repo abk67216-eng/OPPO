@@ -38,24 +38,25 @@
 
         #main-screen { display: none; max-width: 680px; margin: 0 auto; }
         
-        /* 精简且高档的顶部 Banner（限制高度，不再呆板占版面） */
+        /* 完整顯示海報全貌的頂部 Banner 容器 */
         .banner-container {
             width: 100%;
-            height: 170px; /* 固定精美高度 */
-            background: #0b0b0b;
+            background: #000000;
             border-bottom-left-radius: 18px;
             border-bottom-right-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
             margin-bottom: 14px;
-            position: relative;
+            text-align: center;
+            padding: 6px 0;
         }
         .banner-img {
             width: 100%;
-            height: 100%;
-            object-fit: cover; /* 满屏铺满，质感极佳 */
-            object-position: center 30%; /* 聚焦展示海报核心区域 */
+            height: auto;
+            max-height: 280px;
+            object-fit: contain;
             display: block;
+            margin: 0 auto;
         }
 
         .content-body { padding: 0 16px; }
@@ -92,15 +93,14 @@
     <div id="auth-screen">
         <h2>🔒 手机报价查询系统</h2>
         <p>请输入内部专用密码</p>
-        <input type="password" id="pwd-input" class="pwd-input" placeholder="输入密码" maxlength="6">
-        <button class="pwd-btn" onclick="verifyPassword()">解锁查看报价</button>
+        <input type="password" id="pwd-input" class="pwd-input" placeholder="输入密码" maxlength="10" onkeyup="checkEnter(event)">
+        <button class="pwd-btn" id="unlock-btn" onclick="verifyPassword()">解锁查看报价</button>
         <div id="err-tip" class="error-msg">密码错误（默认密码：8888）</div>
     </div>
 
     <div id="main-screen">
-        <!-- 紧凑高档的顶部 Banner（使用刚才上传的 header.jpg） -->
         <div class="banner-container">
-            <img class="banner-img" src="header.jpg" alt="OPPO Find X10 Pro Max">
+            <img class="banner-img" src="header.jpg" alt="OPPO Find X10 Pro Max 鲁大师 TOP1">
         </div>
 
         <div class="content-body">
@@ -272,13 +272,20 @@
         }
 
         function verifyPassword() {
-            const pwd = document.getElementById('pwd-input').value;
+            const inputField = document.getElementById('pwd-input');
+            const pwd = inputField ? inputField.value.trim() : '';
             if (pwd === '8888') {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-screen').style.display = 'block';
                 renderCards(parseGroupedData());
             } else {
                 document.getElementById('err-tip').style.display = 'block';
+            }
+        }
+
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                verifyPassword();
             }
         }
 
