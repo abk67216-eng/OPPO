@@ -15,14 +15,13 @@
             --price-r: #0066cc;
             --border: #e5e5ea;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: var(--bg-color); color: var(--text-main); padding-bottom: 40px; }
         
         #auth-screen {
-            max-width: 380px; margin: 60px auto 0; background: var(--card-bg);
-            padding: 30px 20px; border-radius: 20px; text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            max-width: 360px; margin: 60px auto 0; background: var(--card-bg);
+            padding: 30px 20px; border-radius: 16px; text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
         #auth-screen h2 { font-size: 20px; margin-bottom: 8px; }
         #auth-screen p { color: var(--text-sub); font-size: 14px; margin-bottom: 20px; }
@@ -66,4 +65,142 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 8px 0; border-bottom: 1px dashed var(--border);
         }
-        .config-item:last-child
+        .config-item:last-child { border-bottom: none; }
+        .config-name { font-size: 14px; font-weight: 500; }
+        .price-group { display: flex; gap: 14px; font-size: 13px; }
+        .price-tag { display: flex; flex-direction: column; align-items: flex-end; }
+        .price-label { font-size: 10px; color: var(--text-sub); }
+        .val-w { color: var(--price-w); font-weight: 700; }
+        .val-r { color: var(--price-r); font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen">
+        <h2>🔒 手机报价查询系统</h2>
+        <p>请输入内部专用密码</p>
+        <input type="password" id="pwd-input" class="pwd-input" placeholder="输入密码" maxlength="6">
+        <button class="pwd-btn" onclick="verifyPassword()">解锁查看报价</button>
+        <div id="err-tip" class="error-msg">密码错误（默认密码：8888）</div>
+    </div>
+
+    <div id="main-screen">
+        <div class="banner-container">
+            <div class="banner-title">📱 Find X10 E 实时报价单</div>
+        </div>
+
+        <div class="content-body">
+            <input type="text" id="search-input" class="search-box" placeholder="🔍 搜索机型或配置（如 A6T、Reno16、512）..." oninput="handleSearch()">
+            <div id="model-container"></div>
+        </div>
+    </div>
+
+    <script>
+        const rawData = [
+            "A6X | 6+128 | 1120 | 1299", "A6T | 6+128 | 1140 | 1399", "A6T | 6+256 | 1550 | 1799",
+            "A5活力 | 12+256 | 1290 | 1499", "A5活力 | 12+512 | 1470 | 1699", "K15 Pro | 12+512 | 2760 | 3199",
+            "A6s | 8+256 | 1290 | 1599", "A6s | 12+256 | 1550 | 1899", "A6spro | 12+256 | 1955 | 2299",
+            "A6spro | 12+512 | 2210 | 2599", "A7pro | 6+256 | 1890 | 2199", "A7pro | 8+256 | 2150 | 2499",
+            "A7por Max | 12+256 | 2295 | 2699", "A7por Max | 12+512 | 2550 | 2999", "Reno15C | 12+256 | 2525 | 2899",
+            "Reno15C | 12+512 | 2785 | 3199", "Reno16 | 12+256 | 3050 | 3499", "Reno16 | 16+256 | 3355 | 3899",
+            "Reno16 | 16+512 | 3700 | 4299", "Reno16 | 16+1T | 4215 | 4899", "Reno16 Pro | 12+512 | 4575 | 5299",
+            "Reno16T | 12+256 | 3220 | 3699", "Reno16T | 16+512 | 3870 | 4499", "Find X9s pro | 12+256 | 4770 | 5299",
+            "Find X9s pro | 12+512 | 5015 | 5699", "Find X9s pro | 16+1T | 6160 | 6999", "Find X9 | 12+512 | 7280 | 7999",
+            "Find X9 ultra | 16+512 | 8260 | 8999", "Find X9 ultra | 16+1T | 8455 | 9499", "Find X9 ultra | 16+1T卫星大师版 | 10800 | 11999",
+            "Find X10E | 12+256 | 4400 | 4999", "Find X10E | 16+512 | 4840 | 5499", "Find X10 | 12+256 | 4895 | 5499",
+            "Find X10 | 12+512 | 5340 | 5999", "Find X10 | 16+512 | 5785 | 6499", "Find X10 | 16+1T | 6675 | 7499",
+            "Find X10 Pro Max | 12+512 | 6750 | 7499", "Find X10 Pro Max | 16+512 | 7200 | 7999", "Find X10 Pro Max | 16+1T | 8100 | 8999",
+            "Find N6 | 16+512 | 10000 | 10999", "Find N6 | 16+1T（卫星） | 10920 | 11999", "Find N6 | 12+256 | 9100 | 9999",
+            "一加15T | 16+256 | 4410 | 4899", "一加15T | 16+512 | 4950 | 5499", "一加16T | 16+256 | 5400 | 5999",
+            "一加16 | 16+512 | 6750 | 7499", "一加Ace6 | 12+512 | 3600 | 3999", "一加Ace6 | 16+512 | 3870 | 4299",
+            "一加Ace6T | 16+256 | 3870 | 4299", "一加Ace6T | 16+512 | 3600 | 3999", "一加Ace6至尊 | 12+512 | 3870 | 4299",
+            "一加Ace6至尊 | 16+512 | 4140 | 4599", "一加Ace6x | 12+256 | 2070 | 2299", "一加Ace6x pro | 8+256 | 1710 | 1899",
+            "一加Ace6x pro | 12+256 | 1980 | 2199", "一加turbo6 | 16+256 | 2820 | 3099", "一加turbo6 | 16+512 | 3240 | 3599",
+            "一加turbo6 | 12+512 | 2870 | 3299", "一加turbo6v | 12+256 | 2365 | 2599", "一加turbo6v | 12+512 | 2610 | 2899",
+            "Enco x3有线充版 | 黑白 | 680 | 849", "Enco x3有线充版 | 灰金 | 840 | 999", "Enco Clip2 | 紫银 | 640 | 799",
+            "Enco Air5s | 灰白金 | 2075 | 2399", "watch X3 | 钛色橙色 | 2245 | 2599", "watch X3 mini | 银棕 | 1750 | 1999",
+            "watch X3 mini | 金色 | 2190 | 2499", "watch S2 | 灰粉橙 | 1315 | 1499", "watch SE | 8+128 | 1380 | 1599",
+            "pad SE | 8+256 | 1530 | 1799", "pad SE柔光版 | 8+256 | 1620 | 1899", "pad2 | 8+256 | 2500 | 2799",
+            "pad 4Pro | 12+256 | 3185 | 3599", "pad 4Pro | 16+512 | 3625 | 4099", "pad 5 | 8+256 | 2740 | 3099",
+            "pad 5 | 12+256 | 2780 | 3099", "pad 5柔光板 | 8+256 | 3030 | 3399", "pad 5柔光板 | 12+256 | 3980 | 4499",
+            "pad 5pro | 12+256 | 4860 | 5499", "pod 6 | 8+256 | 3360 | 3799", "pod 6 | 16+512 | 4070 | 4599",
+            "pod 6柔光板 | 8+256 | 3625 | 4099", "pod 6柔光板 | 12+256 | 3975 | 4499", "pad mini | 8+256 | 4420 | 4999",
+            "pad mini | 12+512 | 5535 | 5999", "pad mini柔光板 | 12+256 | 2085 | 2399", "pad air5 | 8+256 | 2085 | 2399",
+            "pad air5柔光版 | 8+256 | 2280 | 2599", "pad air5插卡版 | 8+128 | 2095 | 2399", "pad air5 | 12+256 | 2450 | 2799",
+            "pad air5柔光版 | 12+256 | 2650 | 2999"
+        ];
+
+        function parseGroupedData(filterKeyword = '') {
+            const groups = {};
+            const kw = filterKeyword.toLowerCase().trim();
+
+            rawData.forEach(item => {
+                const parts = item.split(' | ');
+                if (parts.length < 4) return;
+                const model = parts[0];
+                const config = parts[1];
+                const costPrice = parts[2];
+                const sellPrice = parts[3];
+
+                if (kw && !model.toLowerCase().includes(kw) && !config.toLowerCase().includes(kw)) {
+                    return;
+                }
+                if (!groups[model]) {
+                    groups[model] = [];
+                }
+                groups[model].push({ config, costPrice, sellPrice });
+            });
+            return groups;
+        }
+
+        function renderCards(groups) {
+            const container = document.getElementById('model-container');
+            container.innerHTML = '';
+            const modelNames = Object.keys(groups);
+            if (modelNames.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:30px;color:#999;">没有找到匹配的机型</div>';
+                return;
+            }
+            modelNames.forEach(model => {
+                const card = document.createElement('div');
+                card.className = 'model-card';
+                let itemsHtml = groups[model].map(sub => `
+                    <li class="config-item">
+                        <span class="config-name">${sub.config}</span>
+                        <div class="price-group">
+                            <div class="price-tag"><span class="price-label">进价</span><span class="val-w">¥${sub.costPrice}</span></div>
+                            <div class="price-tag"><span class="price-label">卖价</span><span class="val-r">¥${sub.sellPrice}</span></div>
+                        </div>
+                    </li>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="model-header">
+                        <span>${model}</span>
+                    </div>
+                    <ul class="config-list">
+                        ${itemsHtml}
+                    </ul>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function verifyPassword() {
+            const pwd = document.getElementById('pwd-input').value;
+            if (pwd === '8888') {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-screen').style.display = 'block';
+                renderCards(parseGroupedData());
+            } else {
+                document.getElementById('err-tip').style.display = 'block';
+            }
+        }
+
+        function handleSearch() {
+            const kw = document.getElementById('search-input').value;
+            renderCards(parseGroupedData(kw));
+        }
+    </script>
+</body>
+</html>
