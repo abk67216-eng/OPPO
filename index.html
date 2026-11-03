@@ -38,7 +38,6 @@
 
         #main-screen { display: none; max-width: 680px; margin: 0 auto; }
         
-        /* 顶部 Banner 设计（专属 Find X10 E 样式） */
         .banner-container {
             width: 100%; background: #ffffff; padding: 20px 16px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; margin-bottom: 16px;
@@ -89,7 +88,6 @@
     </div>
 
     <div id="main-screen">
-        <!-- 还原海报样式的 Banner 头图 -->
         <div class="banner-container">
             <div class="banner-brand">oppo</div>
             <div class="banner-model">Find X10 E</div>
@@ -102,13 +100,20 @@
         </div>
 
         <div class="content-body">
-            <input type="text" id="search-input" class="search-box" placeholder="🔍 搜索机型或配置（如 A6T、Reno16、512）..." oninput="handleSearch()">
+            <input type="text" id="search-input" class="search-box" placeholder="🔍 搜索机型或配置（如 Ace7Pro、A6T、512）..." oninput="handleSearch()">
             <div id="model-container"></div>
         </div>
     </div>
 
     <script>
         const rawData = [
+            // 新增的 Ace7 Pro 与 Ace7 系列
+            "Ace7Pro | 12+512 | 5040 | 5599",
+            "Ace7Pro | 16+512 | 5400 | 5999",
+            "Ace7Pro | 16+1T | 6570 | 7299",
+            "Ace7 | 16+256 | 4410 | 4899",
+            "Ace7 | 16+512 | 5130 | 5699",
+            // 原有数据
             "A6X | 6+128 | 1120 | 1299", "A6T | 6+128 | 1140 | 1399", "A6T | 6+256 | 1550 | 1799",
             "A5活力 | 12+256 | 1290 | 1499", "A5活力 | 12+512 | 1470 | 1699", "K15 Pro | 12+512 | 2760 | 3199",
             "A6s | 8+256 | 1290 | 1599", "A6s | 12+256 | 1550 | 1899", "A6spro | 12+256 | 1955 | 2299",
