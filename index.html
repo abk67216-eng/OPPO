@@ -94,8 +94,8 @@
     <div id="auth-screen">
         <h2>🔒 手机报价查询系统</h2>
         <p>请输入内部专用密码</p>
-        <input type="password" id="pwd-input" class="pwd-input" placeholder="输入密码" maxlength="10">
-        <button type="button" class="pwd-btn" id="unlock-btn">解锁查看报价</button>
+        <input type="password" id="pwd-input" class="pwd-input" placeholder="输入密码" maxlength="10" onkeyup="if(event.key==='Enter') checkPwd()">
+        <button type="button" class="pwd-btn" onclick="checkPwd()">解锁查看报价</button>
         <div id="err-tip" class="error-msg">密码错误（默认密码：8888）</div>
     </div>
 
@@ -293,12 +293,6 @@
             const kw = document.getElementById('search-input').value;
             renderCards(parseGroupedData(kw));
         }
-
-        // 绑定点击与回车事件
-        document.getElementById('unlock-btn').onclick = checkPwd;
-        document.getElementById('pwd-input').onkeyup = function(e) {
-            if (e.key === 'Enter') checkPwd();
-        };
 
         // 页面加载自动判断（若曾解锁过直接进入）
         window.onload = function() {
