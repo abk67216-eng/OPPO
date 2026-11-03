@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>产品实时报价</title>
+    <title>产品实时报价系统</title>
     <style>
         :root {
             --bg: #f5f6f8;
@@ -12,41 +12,76 @@
             --text: #1f1f1f;
             --text2: #666;
             --border: #e8e8e8;
-            --danger: #ff4d4f;
-            --success: #52c41a;
+            --danger: #d9363e;
+            --success: #0958d9;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 16px; max-width: 800px; margin: 0 auto; }
-        .container { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        h1 { font-size: 20px; margin-bottom: 8px; text-align: center; }
-        p { color: var(--text2); font-size: 14px; text-align: center; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
-        th { background: #fafafa; font-weight: 600; }
-        .price-w { color: #d9363e; font-weight: bold; }
-        .price-r { color: #0958d9; font-weight: bold; }
+        
+        /* 密码验证页样式 */
+        #auth-screen {
+            background: var(--card); border-radius: 12px; padding: 30px 20px; text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-top: 50px;
+        }
+        #auth-screen h2 { margin-bottom: 12px; font-size: 22px; }
+        #auth-screen p { color: var(--text2); margin-bottom: 20px; font-size: 14px; }
+        .auth-input { padding: 10px 14px; font-size: 16px; width: 80%; max-width: 260px; border: 1px solid var(--border); border-radius: 6px; outline: none; text-align: center; margin-bottom: 15px; }
+        .auth-btn { display: block; width: 80%; max-width: 260px; margin: 0 auto; background: var(--primary); color: white; border: none; padding: 10px; font-size: 16px; border-radius: 6px; cursor: pointer; }
+        .error-msg { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+
+        /* 主报价页样式 */
+        #main-screen { display: none; }
+        .container { background: var(--card); border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        h1 { font-size: 18px; margin-bottom: 6px; text-align: center; }
+        .subtitle { color: var(--text2); font-size: 12px; text-align: center; margin-bottom: 15px; }
+        
+        /* 搜索框样式 */
+        .search-box { width: 100%; padding: 12px; font-size: 15px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; outline: none; background: #fafafa; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px 6px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+        th { background: #fafafa; font-weight: 600; color: #333; }
+        .price-w { color: var(--danger); font-weight: bold; }
+        .price-r { color: var(--success); font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📱 产品实时报价单</h1>
-        <p>价格更新于最新同步</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>型号 / 配置</th>
-                    <th>批发价</th>
-                    <th>零售价</th>
-                </tr>
-            </thead>
-            <tbody id="price-list">
-                <!-- 自动加载报价 -->
-            </tbody>
-        </table>
+
+    <!-- 密码输入界面 -->
+    <div id="auth-screen">
+        <h2>🔒 内部报价查询</h2>
+        <p>请输入查询密码以查看最新价格</p>
+        <input type="password" id="pwd-input" class="auth-input" placeholder="请输入密码" maxlength="6">
+        <button class="auth-btn" onclick="checkPassword()">进入查询</button>
+        <div id="err-tip" class="error-msg">密码错误，请重新输入（提示：8888）</div>
+    </div>
+
+    <!-- 客户查询主界面 -->
+    <div id="main-screen">
+        <div class="container">
+            <h1>📱 产品实时报价单</h1>
+            <div class="subtitle">价格实时更新，支持模糊搜索机型</div>
+            
+            <!-- 搜索栏 -->
+            <input type="text" id="search-input" class="search-box" placeholder="🔍 输入机型快速查询（如：Reno16、一加、watch）..." oninput="filterTable()">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>机型 / 配置</th>
+                        <th>批发价</th>
+                        <th>零售价</th>
+                    </tr>
+                </thead>
+                <tbody id="price-list">
+                    <!-- 自动加载数据 -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        // 最新 91 项报价数据
+        // 91 项报价数据
         const rawData = [
             "A6X | 6+128 | 1120 | 1299",
             "A6T | 6+128 | 1140 | 1399",
@@ -141,17 +176,40 @@
             "pad air5柔光版 | 12+256 | 2650 | 2999"
         ];
 
-        const tbody = document.getElementById('price-list');
-        rawData.forEach(item => {
-            const parts = item.split(' | ');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${parts[0]}</strong><br><span style="color:#888;font-size:12px;">${parts[1]}</span></td>
-                <td class="price-w">¥${parts[2]}</td>
-                <td class="price-r">¥${parts[3]}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+        // 验证密码逻辑
+        function checkPassword() {
+            const val = document.getElementById('pwd-input').value;
+            if (val === '8888') {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-screen').style.display = 'block';
+                renderTable(rawData);
+            } else {
+                document.getElementById('err-tip').style.display = 'block';
+            }
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('price-list');
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const parts = item.split(' | ');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${parts[0]}</strong><br><span style="color:#888;font-size:11px;">${parts[1]}</span></td>
+                    <td class="price-w">¥${parts[2]}</td>
+                    <td class="price-r">¥${parts[3]}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 搜索过滤逻辑
+        function filterTable() {
+            const keyword = document.getElementById('search-input').value.toLowerCase();
+            const filtered = rawData.filter(item => item.toLowerCase().includes(keyword));
+            renderTable(filtered);
+        }
     </script>
 </body>
 </html>
