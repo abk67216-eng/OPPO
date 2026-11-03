@@ -38,24 +38,25 @@
 
         #main-screen { display: none; max-width: 680px; margin: 0 auto; }
         
-        /* 精简且高档的顶部 Banner（限制高度，不再呆板占版面） */
+        /* 完美縮放且能看清全貌的頂部 Banner 容器 */
         .banner-container {
             width: 100%;
-            height: 170px; /* 固定精美高度 */
-            background: #0b0b0b;
+            background: #000000;
             border-bottom-left-radius: 18px;
             border-bottom-right-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
             margin-bottom: 14px;
-            position: relative;
+            text-align: center;
+            padding: 6px 0; /* 留少許黑邊襯託海報 */
         }
         .banner-img {
             width: 100%;
-            height: 100%;
-            object-fit: cover; /* 满屏铺满，质感极佳 */
-            object-position: center 30%; /* 聚焦展示海报核心区域 */
+            height: auto;
+            max-height: 280px; /* 限制最大高度，既完整看清海報全貌，又不會過度佔用螢幕 */
+            object-fit: contain; /* 確保 100% 完整展示，絕不裁切 */
             display: block;
+            margin: 0 auto;
         }
 
         .content-body { padding: 0 16px; }
@@ -98,9 +99,9 @@
     </div>
 
     <div id="main-screen">
-        <!-- 紧凑高档的顶部 Banner（使用刚才上传的 header.jpg） -->
+        <!-- 完整顯示海報全貌的頂部 Banner -->
         <div class="banner-container">
-            <img class="banner-img" src="header.jpg" alt="OPPO Find X10 Pro Max">
+            <img class="banner-img" src="header.jpg" alt="OPPO Find X10 Pro Max 鲁大师 TOP1">
         </div>
 
         <div class="content-body">
@@ -109,183 +110,4 @@
         </div>
     </div>
 
-    <script>
-        const rawData = [
-            "A6t | 6+128 | 1140 | 1399",
-            "A6t | 6+256 | 1550 | 1799",
-            "A6K | 6+256 | 1720 | 1999",
-            "A7pro | 6+256 | 1890 | 2199",
-            "A7pro | 8+256 | 2150 | 2499",
-            "A7promax | 12+256 | 2295 | 2699",
-            "A7promax | 12+512 | 2550 | 2999",
-            "K15Pro | 12+256 | 2760 | 3199",
-            "K15Pro | 12+512 | 3270 | 3799",
-            "Reno15c | 12+256 | 2525 | 2899",
-            "Reno15c | 12+512 | 2785 | 3199",
-            "Reno16 | 12+256 | 3050 | 3499",
-            "Reno16 | 16+256 | 3355 | 3899",
-            "Reno16 | 16+512 | 3700 | 4299",
-            "Reno16 | 16+1T | 4215 | 4899",
-            "Reno16t | 12+256 | 3220 | 3699",
-            "Reno16t | 16+512 | 3870 | 4499",
-            "Reno16Pro | 12+512 | 4215 | 4899",
-            "Reno16Pro | 16+512 | 4560 | 5299",
-            "FindX10e | 12+256 | 4400 | 4999",
-            "FindX10e | 16+512 | 4840 | 5499",
-            "FindX10 | 12+256 | 4895 | 5499",
-            "FindX10 | 12+512 | 5340 | 5999",
-            "FindX10 | 16+512 | 5785 | 6499",
-            "FindX10 | 16+1T | 6675 | 7499",
-            "FindX10PM | 12+512 | 6750 | 7499",
-            "FindX10PM | 16+512 | 7200 | 7999",
-            "FindX10PM | 16+1T | 8100 | 8999",
-            "FindX9spro | 12+256 | 4770 | 5299",
-            "FindX9spro | 12+512 | 5015 | 5699",
-            "FindX9spro | 16+512 | 5280 | 5999",
-            "FindX9spro | 16+1T | 6160 | 6999",
-            "FindX9Ultra | 12+512 | 7280 | 7999",
-            "FindX9Ultra | 16+512 | 7565 | 8499",
-            "FindX9Ultra | 16+1T | 8280 | 9299",
-            "FindX9Ultra | 卫星 | 8455 | 9499",
-            "FindX9Ultra | 卫星大师版 | 10800 | 11999",
-            "FindN6 | 12+256 | 9100 | 9999",
-            "FindN6 | 16+512 | 10000 | 10999",
-            "FindN6 | 卫星16+1T | 10920 | 11999",
-            "一加Turbo6X | 8+256 | 1800 | 1999",
-            "一加Turbo6X | 12+256 | 2070 | 2299",
-            "一加TTurbo6XPro | 8+256 | 1710 | 2099",
-            "一加TTurbo6XPro | 12+256 | 1980 | 2399",
-            "一加TTurbo6V | 12+256 | 2365 | 2599",
-            "一加TTurbo6V | 12+512 | 2610 | 2899",
-            "一加TTurbo6 | 16+256 | 2820 | 3099",
-            "一加TTurbo6 | 12+512 | 2970 | 3299",
-            "一加TTurbo6 | 16+512 | 3240 | 3599",
-            "一加Ace6 | 12+512 | 3600 | 3999",
-            "一加Ace6 | 16+512 | 3870 | 4299",
-            "一加Ace6T | 16+256 | 3275 | 3599",
-            "一加Ace6T | 16+512 | 3870 | 4299",
-            "一加Ace6至尊 | 12+512 | 3870 | 4299",
-            "一加Ace6至尊 | 16+512 | 4140 | 4599",
-            "一加Ace7 | 16+256 | 4410 | 4999",
-            "一加Ace7 | 16+512 | 5130 | 5699",
-            "一加Ace7pro | 12+512 | 5040 | 5599",
-            "一加Ace7pro | 16+512 | 5400 | 5999",
-            "一加Ace7pro | 16+1T | 6570 | 7299",
-            "一加15T | 16+512 | 4950 | 5499",
-            "一加15T | 16+1T | 5400 | 5999",
-            "一加16 | 12+256 | 5400 | 5999",
-            "一加16 | 16+512 | 6750 | 7499",
-            "一加16 | 16+1T | 7650 | 8499",
-            "Padse | 8+128 | 1380 | 1599",
-            "Padse | 柔光8+128 | 1465 | 1699",
-            "Padse | 8+256 | 1530 | 1799",
-            "Padse | 柔光8+256 | 1620 | 1899",
-            "Padair5 | 8+256 | 2095 | 2899",
-            "Padair5 | 灰12+256 | 2450 | 3299",
-            "Padair5 | sim灰8+128 | 2095 | 2399",
-            "Padair5 | 柔光8+256 | 2280 | 3099",
-            "Padair5 | 粉12+256 | 2650 | 3499",
-            "Pad5 | 8+256 | 2500 | 2799",
-            "Pad5 | 12+256 | 2740 | 3099",
-            "Pad5 | 柔光8+256 | 2740 | 3099",
-            "Pad5 | 12+256 | 3030 | 3399",
-            "Pad6 | 8+256 | 3360 | 3799",
-            "Pad6 | 12+256 | 3890 | 4399",
-            "Pad6 | 16+512 | 4070 | 4599",
-            "Pad6 | 柔光8+256 | 3625 | 4099",
-            "Pad6 | 12+256 | 3975 | 4499",
-            "Pad5Pro | 12+256 | 3980 | 4499",
-            "Pad5Pro | 16+512 | 4860 | 5499",
-            "Padmini | 12+256 | 3535 | 3999",
-            "Padmini | 柔光12+256 | 3980 | 4499",
-            "Padmini | 12+512 | 4420 | 4999",
-            "Watchs2 | - | 1315 | 1599",
-            "EncoR4 | - | 160 | 299",
-            "Encoair5s | - | 240 | 299",
-            "Encoclip2 | - | 640 | 799",
-            "EncoX4 | - | 985 | 1199",
-            "Watchs | 黑银 | 960 | 1099",
-            "Watchs | 绿 | 1135 | 1299",
-            "Watchx3mini | 银黑 | 1750 | 1999",
-            "Watchx3mini | 金 | 2190 | 2499",
-            "WatchX3 | 黑 | 2075 | 2399",
-            "WatchX3 | 橙，钛 | 2245 | 2599",
-            "EncoFree4 | 丹拿 | 320 | 399",
-            "EncoX3 | 无线 | 720 | 899",
-            "EncoX3 | 有线 | 680 | 849"
-        ];
-
-        function parseGroupedData(filterKeyword = '') {
-            const groups = {};
-            const kw = filterKeyword.toLowerCase().trim();
-
-            rawData.forEach(item => {
-                const parts = item.split(' | ');
-                if (parts.length < 4) return;
-                const model = parts[0];
-                const config = parts[1];
-                const costPrice = parts[2];
-                const sellPrice = parts[3];
-
-                if (kw && !model.toLowerCase().includes(kw) && !config.toLowerCase().includes(kw)) {
-                    return;
-                }
-                if (!groups[model]) {
-                    groups[model] = [];
-                }
-                groups[model].push({ config, costPrice, sellPrice });
-            });
-            return groups;
-        }
-
-        function renderCards(groups) {
-            const container = document.getElementById('model-container');
-            container.innerHTML = '';
-            const modelNames = Object.keys(groups);
-            if (modelNames.length === 0) {
-                container.innerHTML = '<div style="text-align:center;padding:30px;color:#999;">没有找到匹配的机型</div>';
-                return;
-            }
-            modelNames.forEach(model => {
-                const card = document.createElement('div');
-                card.className = 'model-card';
-                let itemsHtml = groups[model].map(sub => `
-                    <li class="config-item">
-                        <span class="config-name">${sub.config === '-' ? model : sub.config}</span>
-                        <div class="price-group">
-                            <div class="price-tag"><span class="price-label">进价</span><span class="val-w">¥${sub.costPrice}</span></div>
-                            <div class="price-tag"><span class="price-label">卖价</span><span class="val-r">¥${sub.sellPrice}</span></div>
-                        </div>
-                    </li>
-                `).join('');
-
-                card.innerHTML = `
-                    <div class="model-header">
-                        <span>${model}</span>
-                    </div>
-                    <ul class="config-list">
-                        ${itemsHtml}
-                    </ul>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function verifyPassword() {
-            const pwd = document.getElementById('pwd-input').value;
-            if (pwd === '8888') {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('main-screen').style.display = 'block';
-                renderCards(parseGroupedData());
-            } else {
-                document.getElementById('err-tip').style.display = 'block';
-            }
-        }
-
-        function handleSearch() {
-            const kw = document.getElementById('search-input').value;
-            renderCards(parseGroupedData(kw));
-        }
-    </script>
-</body>
-</html>
+    <script
