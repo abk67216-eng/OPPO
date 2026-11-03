@@ -20,9 +20,9 @@
         
         /* 密码验证界面 */
         #auth-screen {
-            max-width: 360px; margin: 80px auto 0; background: var(--card-bg);
-            padding: 32px 24px; border-radius: 18px; text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            max-width: 360px; margin: 60px auto 0; background: var(--card-bg);
+            padding: 30px 20px; border-radius: 16px; text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
         #auth-screen h2 { font-size: 20px; margin-bottom: 8px; }
         #auth-screen p { color: var(--text-sub); font-size: 14px; margin-bottom: 20px; }
@@ -40,23 +40,22 @@
         /* 主界面 */
         #main-screen { display: none; max-width: 680px; margin: 0 auto; }
         
-        /* 超紧凑极简 Banner（高度仅 120px，完全不占版面） */
+        /* 紧凑 Banner 高度 120px */
         .banner-container {
             width: 100%;
-            height: 120px; /* 极简紧凑高度 */
-            background: #050505;
+            height: 120px;
+            background: #000000;
             border-bottom-left-radius: 16px;
             border-bottom-right-radius: 16px;
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 14px;
-            position: relative;
         }
         .banner-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center 25%; /* 聚焦展示核心区域 */
+            object-position: center 25%;
             display: block;
         }
 
@@ -91,19 +90,19 @@
 </head>
 <body>
 
-    <!-- 密码验证界面 -->
-    <div id="auth-screen">
+    <!-- 密码界面 -->
+    <form id="auth-screen" onsubmit="doUnlock(event)">
         <h2>🔒 手机报价查询系统</h2>
         <p>请输入内部专用密码</p>
-        <input type="password" id="pwd-input" class="pwd-input" placeholder="输入密码" maxlength="10" onkeyup="checkEnter(event)">
-        <button class="pwd-btn" onclick="verifyPassword()">解锁查看报价</button>
+        <input type="password" id="pwd-input" class="pwd-input" placeholder="输入密码" autocomplete="off">
+        <button type="submit" class="pwd-btn">解锁查看报价</button>
         <div id="err-tip" class="error-msg">密码错误（默认密码：8888）</div>
-    </div>
+    </form>
 
-    <!-- 报价主界面 -->
+    <!-- 主报价界面 -->
     <div id="main-screen">
         <div class="banner-container">
-            <img class="banner-img" src="header.jpg" alt="OPPO Find Header">
+            <img class="banner-img" src="header.jpg" alt="Header Banner">
         </div>
 
         <div class="content-body">
